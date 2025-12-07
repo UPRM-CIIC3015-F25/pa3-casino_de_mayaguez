@@ -2,6 +2,8 @@ import pygame
 from Deck.DeckManager import DeckManager
 from States.Core.StateClass import State
 from States.Core.PlayerInfo import PlayerInfo
+from Levels.SubLevel import Blind
+
 
 class LevelSelectState(State):
     def __init__(self, playerInfo: PlayerInfo = None, nextState: str = "", deckManager: DeckManager = None):
@@ -94,6 +96,30 @@ class LevelSelectState(State):
                 
                 # Set target score for the new sublevel
                 self.playerInfo.score = self.playerInfo.levelManager.curSubLevel.score
+                current_boss = self.playerInfo.levelManager.curSubLevel
+                if current_boss.blind_type == Blind.BOSS:
+                    boss_name = current_boss.name
+                    if boss_name == "The Water":
+                        self.playerInfo.handLimit = 5
+                        self.playerInfo.discardLimit = 2
+                    elif boss_name == "The Mark":
+                        self.playerInfo.handLimit = 6
+                        self.playerInfo.discardLimit = 3
+                    elif boss_name == "The House":
+                        self.playerInfo.handLimit = 4
+                        self.playerInfo.discardLimit = 1
+                    elif boss_name == "The Hook":
+                        self.playerInfo.handLimit = 7
+                        self.playerInfo.discardLimit = 2
+                    elif boss_name == "The Manacle":
+                        self.playerInfo.handLimit = 5
+                        self.playerInfo.discardLimit = 3
+                    elif boss_name == "The Needle":
+                        self.playerInfo.handLimit = 6
+                        self.playerInfo.discardLimit = 2
+                    else:
+                        self.playerInfo.handLimit = 5
+                        self.playerInfo.discardLimit = 2
                 
                 # Prepare for the nextState : GameState
                 self.deckManager.resetDeck = True
@@ -116,8 +142,17 @@ class LevelSelectState(State):
         #   what unique restriction or ability that boss applies during the round.
         #   This dictionary will later be used to look up and apply special effects based on which boss is active.
         boss_abilities = {
-
+            "The Water": "Cards cost more to play this round.",
+            "The Mark": "Every discard reduces your final score.",
+            "The House": "Hand size is reduced this round.",
+            "The Hook": "One random card is removed each hand.",
+            "The Manacle": "You cannot increase your hand size.",
+            "The Needle": "You must win in a single hand.",
+            "The Club": "All club cards are debuffed.",
+            "The Goad": "Played cards are forced randomly."
         }
+
+
 
         # Dict of boss with their color schemes
         # key - boss name : str, value - (header color : tuple, background color : tuple)
