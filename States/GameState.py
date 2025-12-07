@@ -538,7 +538,7 @@ class GameState(State):
         if stage == 0:
             blind_type = playerInfo.get("blin_type","SMALL")
             if blind_type == "SMALL":
-                base_gold = 3
+                base_gold = 4
             elif blind_type == "BIG":
                 base_gold = 8
             elif blind_type == "BOSS":
@@ -549,13 +549,13 @@ class GameState(State):
 
         elif stage == 1:
             gold = playerInfo["gold"]
-            score = playerInfo.get("score",0)
-            target= playerInfo.get("target_score",0)
-            overkill=max(score-target,0)
-            if overkill ==0:
+            score = playerInfo.get("score", 0)
+            target = playerInfo.get("target_score", 0)
+            overkill_points = max(0, (score - target) // 5)
+            if overkill_points == 0:
                 return self.calculate_gold_reward(playerInfo, stage=2)
-            playerInfo["score"]-= 1
-            playerInfo["gold"]= gold + 1
+            playerInfo["gold"] = gold + 1
+            playerInfo["score"] -= 5
             return self.calculate_gold_reward(playerInfo, stage=1)
         elif stage == 2:
             return playerInfo["gold"]
