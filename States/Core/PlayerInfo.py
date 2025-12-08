@@ -24,7 +24,7 @@ class PlayerInfo(State):
         self.levelFinished = False  # Flag to trigger level selection screen
 
         # --------------------------------Images----------------------------------------------
-        self.backgroundImage = pygame.image.load('Graphics/Backgrounds/gameplayBG.jpg')
+        self.backgroundImage = pygame.image.load('Graphics/Backgrounds/flip_book/IMG-20251207-WA0017-removebg-preview.png')
         self.background = pygame.transform.scale(self.backgroundImage, (1300, 750))
         self.blindImage = self.levelManager.curSubLevel.image  # Get image from current level
 
@@ -98,7 +98,7 @@ class PlayerInfo(State):
 
         # Update background based on whether current level is a boss level
         if self.levelManager.curSubLevel.bossLevel == "":
-            self.backgroundImage = pygame.image.load('Graphics/Backgrounds/gameplayBG.jpg')
+            self.backgroundImage = pygame.image.load('Graphics/Backgrounds/flip_book/IMG-20251207-WA0017-removebg-preview.png')
             self.background = pygame.transform.scale(self.backgroundImage, (1300, 750))
         else:
             self.backgroundImage = pygame.image.load('Graphics/Backgrounds/bossBG.png')

@@ -51,7 +51,8 @@ class GameState(State):
         self.gameOverSound.set_volume(0.6)  # adjust loudness if needed
 
         # --------------------------------Images----------------------------------------------
-        self.backgroundImage = pygame.image.load('Graphics/Backgrounds/gameplayBG.jpg')
+        # self.backgroundImage = pygame.image.load('Graphics/Backgrounds/gameplayBG.jpg')
+        self.backgroundImage = pygame.image.load('Graphics/Backgrounds/flip_book/IMG-20251207-WA0017-removebg-preview.png')
         self.background = pygame.transform.scale(self.backgroundImage, (1300, 750))
         self.smallBlind = pygame.image.load('Graphics/Backgrounds/Blinds/smallBlind.png')
 

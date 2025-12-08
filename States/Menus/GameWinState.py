@@ -18,7 +18,7 @@ class GameWinState(State):
         self.quit_rect.center = (self.screen_center[0], self.screen_center[1] + 110)
 
         # Background image (optional)
-        self.bg = pygame.image.load('Graphics/Backgrounds/gameplayBG.jpg')
+        self.bg = pygame.image.load('Graphics/Backgrounds/flip_book/IMG-20251207-WA0017-removebg-preview.png')
         self.bg = pygame.transform.scale(self.bg, (1300, 750))
         # TV overlay (CRT filter)
         self.tvOverlay = pygame.image.load('Graphics/Backgrounds/CRT.png').convert_alpha()
