@@ -148,14 +148,20 @@ class DeckManager:
         cardImages = self.load_card_images(subLevel)
         deck = []
 
-        suits = ['hearts', 'diamonds', 'clubs', 'spades']
-        ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
+        # ✅ Usa los enums importados
+        suits = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]
+
+        ranks = [
+            Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX,
+            Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.TEN,
+            Rank.JACK, Rank.QUEEN, Rank.KING, Rank.ACE
+        ]
 
         for suit in suits:
             for rank in ranks:
-                card_key = (suit, rank)
+                card_key = (suit, rank)  # ✅ usando enums
                 if card_key in cardImages:
-                    card = Card(suit, rank, cardImages[card_key])
+                    card = Card(suit=suit, rank=rank, image=cardImages[card_key])
                     deck.append(card)
 
         return deck

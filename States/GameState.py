@@ -534,9 +534,9 @@ class GameState(State):
     #     - Recursive calculation of the overkill bonus (based on how much score exceeds the target)
     #     - A clear base case to stop recursion when all parts are done
     #   Avoid any for/while loops — recursion alone must handle the repetition.
-    def calculate_gold_reward(self, playerInfo, stage=0):
+    def calculate_gold_reward(self, playerInfo, stage=0, accumulated_gold=0):
         if stage == 0:
-            blind_type = playerInfo.get("blin_type","SMALL")
+            blind_type = playerInfo.levelManager.curSubLevel.blindType
             if blind_type == "SMALL":
                 base_gold = 4
             elif blind_type == "BIG":
@@ -544,21 +544,26 @@ class GameState(State):
             elif blind_type == "BOSS":
                 base_gold = 10
             else:
-                base_gold=0
-            return self.calculate_gold_reward({**playerInfo, "gold": base_gold}, stage=1)
+                base_gold = 0
+            return self.calculate_gold_reward(playerInfo, stage=1, accumulated_gold=base_gold)
 
         elif stage == 1:
-            gold = playerInfo["gold"]
-            score = playerInfo.get("score", 0)
-            target = playerInfo.get("target_score", 0)
-            overkill_points = max(0, (score - target) // 5)
-            if overkill_points == 0:
-                return self.calculate_gold_reward(playerInfo, stage=2)
-            playerInfo["gold"] = gold + 1
-            playerInfo["score"] -= 5
-            return self.calculate_gold_reward(playerInfo, stage=1)
+            score = playerInfo.roundScore
+            target = playerInfo.levelManager.curSubLevel.score
+
+            if score <= target:
+                return self.calculate_gold_reward(playerInfo, stage=2, accumulated_gold=accumulated_gold)
+
+            excess = score - target
+            bonus = min(5, int((excess / target) * 5))
+
+            return self.calculate_gold_reward(playerInfo, stage=2, accumulated_gold=accumulated_gold + bonus)
+
         elif stage == 2:
-            return playerInfo["gold"]
+            return accumulated_gold
+
+
+
 
     def updateCards(self, posX, posY, cardsDict, cardsList, scale=1.5, spacing=90, baseYOffset=-20, leftShift=40):
         cardsDict.clear()
