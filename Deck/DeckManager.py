@@ -3,6 +3,7 @@ import random
 from Cards.Card import Suit, Rank, Card
 from Cards.Jokers import Jokers
 from Levels.SubLevel import SubLevel
+from Cards import Card
 
 class DeckManager:
     def __init__(self):
@@ -147,8 +148,8 @@ class DeckManager:
         cardImages = self.load_card_images(subLevel)
         deck = []
 
-        suits = ['hearts', 'diamonds', 'clubs', 'spades']
-        ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
+        suits = Card.Suit
+        ranks = Card.Rank
 
         for suit in suits:
             for rank in ranks:
