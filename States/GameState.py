@@ -535,7 +535,30 @@ class GameState(State):
     #     - A clear base case to stop recursion when all parts are done
     #   Avoid any for/while loops — recursion alone must handle the repetition.
     def calculate_gold_reward(self, playerInfo, stage=0):
-            return 0
+        if stage == 0:
+            blind_type = playerInfo.get("blin_type","SMALL")
+            if blind_type == "SMALL":
+                base_gold = 4
+            elif blind_type == "BIG":
+                base_gold = 8
+            elif blind_type == "BOSS":
+                base_gold = 10
+            else:
+                base_gold=0
+            return self.calculate_gold_reward({**playerInfo, "gold": base_gold}, stage=1)
+
+        elif stage == 1:
+            gold = playerInfo["gold"]
+            score = playerInfo.get("score", 0)
+            target = playerInfo.get("target_score", 0)
+            overkill_points = max(0, (score - target) // 5)
+            if overkill_points == 0:
+                return self.calculate_gold_reward(playerInfo, stage=2)
+            playerInfo["gold"] = gold + 1
+            playerInfo["score"] -= 5
+            return self.calculate_gold_reward(playerInfo, stage=1)
+        elif stage == 2:
+            return playerInfo["gold"]
 
     def updateCards(self, posX, posY, cardsDict, cardsList, scale=1.5, spacing=90, baseYOffset=-20, leftShift=40):
         cardsDict.clear()
@@ -809,8 +832,58 @@ class GameState(State):
         #       # Apply that Joker’s effect
         #       self.activated_jokers.add("joker card name")
         #   The last line ensures the Joker is visibly active and its effects are properly applied.
+        if "The Joker" in owned:
+            hand_mult += 4
+            self.activated_jokers.add("The Joker")
+
+        if "Michael Myers" in owned:
+            extra_mult = random.randint(0, 23)
+            hand_mult += extra_mult
+            self.activated_jokers.add("Michael Myers")
+
+        if "Fibonacci" in owned:
+            fib_values = {Rank.ACE.value, Rank.TWO.value, Rank.THREE.value,
+                          Rank.FIVE.value, Rank.EIGHT.value}
+            count_fib_cards = sum(1 for c in used_cards if c.rank.value in fib_values)
+            if count_fib_cards > 0:
+                hand_mult += 8 * count_fib_cards
+                self.activated_jokers.add("Fibonacci")
+
+        if "Gauntlet" in owned:
+            total_chips += 250
+            self.playerInfo.amountOfHands = max(0, self.playerInfo.amountOfHands - 2)
+            self.activated_jokers.add("Gauntlet")
+
+        if "Ogre" in owned:
+            jokers_owned = len(owned)
+            hand_mult += 3 * jokers_owned
+            self.activated_jokers.add("Ogre")
+
+        if "StrawHat" in owned:
+            hands_played_before = max(0, len(self.playedHandNameList) - 2)
+            total_chips += 100 - 5 * hands_played_before
+            self.activated_jokers.add("StrawHat")
+
+        if "Hog Rider" in owned and hand_name == "Straight":
+            total_chips += 100
+            self.activated_jokers.add("Hog Rider")
+
+        if "? Block" in owned and len(used_cards) == 4:
+            total_chips += 4
+            self.activated_jokers.add("? Block")
+
+        if "Hogwarts" in owned:
+            ace_count = sum(1 for c in used_cards if c.rank == Rank.ACE)
+            if ace_count > 0:
+                hand_mult += 4 * ace_count
+                total_chips += 20 * ace_count
+                self.activated_jokers.add("Hogwarts")
 
         procrastinate = False
+        if "802" in owned and self.playerInfo.amountOfHands == 0:
+            procrastinate = True
+            self.activated_jokers.add("802")
+
 
         # commit modified player multiplier and chips
         self.playerInfo.playerMultiplier = hand_mult
@@ -846,4 +919,41 @@ class GameState(State):
     #   recursion finishes, reset card selections, clear any display text or tracking lists, and
     #   update the visual layout of the player's hand.
     def discardCards(self, removeFromHand: bool):
+
+        def discard_selected_recursive():
+            if len(self.cardsSelectedList) == 0:
+                return
+
+            card = self.cardsSelectedList[0]
+            card.isSelected = False
+
+            if removeFromHand and card in self.hand:
+                self.hand.remove(card)
+                self.used.append(card)
+
+            self.cardsSelectedList.pop(0)
+            discard_selected_recursive()
+
+        def draw_until_full_recursive():
+            if len(self.hand) >= 8 or len(self.deck) == 0:
+                return
+
+            card = self.deck.pop(0)
+            card.isSelected = False
+            self.hand.append(card)
+            draw_until_full_recursive()
+
+        def clear_selection_in_hand_recursive(index: int = 0):
+            if index >= len(self.hand):
+                return
+            self.hand[index].isSelected = False
+            clear_selection_in_hand_recursive(index + 1)
+
+        discard_selected_recursive()
+        draw_until_full_recursive()
+
+        self.cardsSelectedRect = {}
+        clear_selection_in_hand_recursive()
+        self.cardsSelectedList = []
+
         self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
